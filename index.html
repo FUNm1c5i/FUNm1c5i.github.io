@@ -7,5 +7,99 @@
 </head>
 <body>
 
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Share Tech Mono', monospace;
+        background: #000;
+        color: #00ff99;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .text-container {
+        text-align: center;
+    }
+
+    .thank-you-text {
+        font-weight: 400;
+        font-size: clamp(2.5rem, 10vw, 8rem);
+        position: relative;
+        color: #00ff99;
+        text-shadow: 0 0 5px #00ff99, 0 0 15px #00ff99, 0 0 30px #00ff99;
+        cursor: default;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .thank-you-text span {
+        display: inline-block;
+        position: relative;
+        min-width: 0.5ch;
+        will-change: contents;
+    }
+</style>
+
+<div class="text-container">
+    <h1 class="thank-you-text" id="thankYouText">
+    </h1>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const textElement = document.getElementById('thankYouText');
+        const originalText = "Thank You";
+        
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_-+=[]{}|;:,.<>?';
+
+        originalText.split('').forEach(char => {
+            const span = document.createElement('span');
+            span.innerHTML = char === ' ' ? '&nbsp;' : char;
+            textElement.appendChild(span);
+        });
+
+        const letters = Array.from(textElement.children);
+
+        function createDecoderAnimation() {
+            const tl = gsap.timeline({
+                onComplete: () => {
+                    gsap.delayedCall(1, () => tl.restart());
+                }
+            });
+
+            letters.forEach((letter, i) => {
+                const originalChar = letter.innerHTML;
+                if (originalChar === '&nbsp;') return;
+
+                let proxy = { charIndex: 0 };
+                
+                tl.to(proxy, {
+                    charIndex: chars.length - 1,
+                    duration: 1.5,
+                    ease: "power2.inOut",
+                    onUpdate: () => {
+                        const randomIndex = Math.floor(Math.random() * chars.length);
+                        letter.textContent = chars[randomIndex];
+                    },
+                    onComplete: () => {
+                        letter.textContent = originalChar;
+                    }
+                }, i * 0.1);
+            });
+            
+            tl.to({}, { duration: 2 });
+        }
+        
+        createDecoderAnimation();
+    });
+</script>
+
 </body>
 </html>
