@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. TEXT DECODER ANIMATION
     const textElement = document.getElementById('thankYouText');
-    const originalText = "Thank You";
+    const originalText = "To be announced by nNoiyedWare";
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_-+=[]{}|;:,.<>?';
 
     originalText.split('').forEach(char => {
