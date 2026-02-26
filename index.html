@@ -24,42 +24,48 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const textElement = document.getElementById('thankYouText');
-            const originalText = "To be announced by nNoiyedWare";
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_-+=[]{}|;:,.<>?';
+document.addEventListener('DOMContentLoaded', () => {
+    const textElement = document.getElementById('thankYouText');
+    const originalText = "To be announced by nNoiyedWare";
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_-+=[]{}|;:,.<>?';
 
-            originalText.split('').forEach(char => {
-                const span = document.createElement('span');
-                span.innerHTML = char === ' ' ? '&nbsp;' : char;
-                textElement.appendChild(span);
-            });
+    // create spans using textContent (not innerHTML)
+    originalText.split('').forEach(char => {
+        const span = document.createElement('span');
+        span.textContent = char; // preserve real character (space stays a space)
+        textElement.appendChild(span);
+    });
 
-            const letters = Array.from(textElement.children);
+    const letters = Array.from(textElement.children);
 
-            function createDecoderAnimation() {
-                const tl = gsap.timeline({
-                    onComplete: () => { gsap.delayedCall(1, () => tl.restart()); }
-                });
-
-                letters.forEach((letter, i) => {
-                    const originalChar = letter.innerHTML;
-                    if (originalChar === '&nbsp;') return;
-                    let proxy = { charIndex: 0 };
-                    tl.to(proxy, {
-                        charIndex: chars.length - 1,
-                        duration: 1.5,
-                        ease: "power2.inOut",
-                        onUpdate: () => {
-                            letter.textContent = chars[Math.floor(Math.random() * chars.length)];
-                        },
-                        onComplete: () => { letter.textContent = originalChar; }
-                    }, i * 0.1);
-                });
-                tl.to({}, { duration: 2 });
-            }
-            createDecoderAnimation();
+    function createDecoderAnimation() {
+        const tl = gsap.timeline({
+            onComplete: () => { gsap.delayedCall(1, () => tl.restart()); }
         });
-    </script>
+
+        letters.forEach((letter, i) => {
+            const originalChar = letter.textContent; // use textContent
+            // skip whitespace (space, tab, newline) so they don't show weird entities
+            if (/\s/.test(originalChar)) return;
+
+            // animate a dummy value but use random chars in onUpdate
+            const proxy = { t: 0 };
+            tl.to(proxy, {
+                t: 1,
+                duration: 1.5,
+                ease: "power2.inOut",
+                onUpdate: () => {
+                    letter.textContent = chars[Math.floor(Math.random() * chars.length)];
+                },
+                onComplete: () => { letter.textContent = originalChar; }
+            }, i * 0.1);
+        });
+
+        // pause before restarting
+        tl.to({}, { duration: 2 });
+    }
+    createDecoderAnimation();
+});
+</script>
 </body>
 </html>
