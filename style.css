@@ -1,100 +1,78 @@
-@import 'compass/css3';
-
-$np: 3;
-$data: 
-	(ini: 50vw 50vh)
-	(ini: 75vw 25vh)
-	(ini: 25vw 75vh)
-	(ini: 5vw 39vh, dif: 80vw -47vh)
-	(ini: 85vw 73vh, dif: -65vw 7vh);
-$ng: length($data);
-$rc: 10em;
-$t: 6s;
-
-@function getPolyPoints(
-		$n: 3 /* number of poly vertices */, 
-		$oa: -90deg /* angular offset of 1st poly vertex */, 
-		$bw: 50% /* polygon border-width */) {
-	
-	$ba: 360deg/$n; // base angle corrensponding to 1 poly edge
-	$l0: (); // list of points, initially empty
-	$l1: (); // list of points, initially empty
-	
-	@for $i from 0 through $n {
-		$ca: $i*$ba + $oa; // angle current point is at wrt x axis
-		$x: calc(50%*(1 + #{cos($ca)})); // x coord of current point
-		$y: calc(50%*(1 + #{sin($ca)})); // y coord of current point
-		$l0: $l0, $x $y; // add current point coords to points list
-		$ca: -$i*$ba + $oa; // angle current point is at wrt x axis
-		$x: calc(50% + (50% - #{$bw})*#{cos($ca)}); // x coord of current point
-		$y: calc(50% + (50% - #{$bw})*#{sin($ca)}); // y coord of current point
-		$l1: $l1, $x $y // add current point coords to points list
-	}
-	
-	@return join($l0, $l1, comma)
+/* --- BASE --- */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+    font-family: 'Share Tech Mono', monospace;
 }
 
-html {
-	overflow: hidden;
-	background: #000
-}
-
-body { filter: drop-shadow(0 0 15px #fff) }
-
+/* --- POLYGON BG --- */
 .poly {
-	position: absolute;
-	color: HSL(var(--hue), 100%, 65%);
-	filter: drop-shadow(0 0 15px currentcolor);
-	mix-blend-mode: screen;
-	animation: pos $t linear infinite;
-	
-	&:before {
-		display: block;
-		margin: -$rc;
-		padding: $rc;
-		border-radius: 50%;
-		transform: scale(0);
-		background: currentcolor;
-		clip-path: var(--p0);
-		animation: inherit;
-		animation-name: poly;
-		animation-timing-function: ease-out;
-		content: ''
-	}
-	
-	@for $i from 0 to $ng {
-		$n: 3 + random(7);
-		$oa: random(360)*1deg;
-		$cd: nth($data, $i + 1);
-		$ini: map-get($cd, ini);
-		$dif: if(map-has-key($cd, dif), map-get($cd, dif), 0 0);
-		
-		&:nth-child(n + #{$i*$np + 1}) {
-			top: nth($ini, 2); left: nth($ini, 1);
-			--x: nth($dif, 1);
-			--y: nth($dif, 2);
-			--hue: #{random(360)};
-			--p0: polygon(getPolyPoints($n, $oa));
-			--p1: polygon(getPolyPoints($n, $oa, 4px));
-		}
-	}
-	
-	@for $i from 0 to $np {
-		&:nth-child(#{$np}n + #{$i + 1}) { animation-delay: -$i*$t/$np }
-	}
+    position: absolute;
+    color: HSL(var(--hue), 100%, 65%);
+    filter: drop-shadow(0 0 15px currentcolor);
+    mix-blend-mode: screen;
+    animation: pos 6s linear infinite;
 }
 
-@keyframes pos { to { transform: translate(var(--x), var(--y)) rotate(270deg) } }
+.poly:before {
+    display: block;
+    margin: -10em;
+    padding: 10em;
+    border-radius: 50%;
+    transform: scale(0);
+    background: currentcolor;
+    clip-path: var(--p0);
+    animation: inherit;
+    animation-name: poly;
+    animation-timing-function: ease-out;
+    content: "";
+}
+
+/* Polygon Pos */
+.poly:nth-child(n + 1) { top: 50vh; left: 50vw; --x: 0; --y: 0; --hue: 26; --p0: polygon(50% 0%, 0% 100%, 100% 100%); --p1: polygon(50% 5%, 5% 95%, 95% 95%); }
+.poly:nth-child(n + 4) { top: 25vh; left: 75vw; --x: 0; --y: 0; --hue: 218; --p0: polygon(50% 0%, 10% 25%, 10% 75%, 50% 100%, 90% 75%, 90% 25%); --p1: polygon(50% 10%, 20% 30%, 20% 70%, 50% 90%, 80% 70%, 80% 30%); }
+.poly:nth-child(n + 7) { top: 75vh; left: 25vw; --x: 0; --y: 0; --hue: 28; --p0: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); --p1: polygon(30% 10%, 70% 10%, 90% 50%, 70% 90%, 30% 90%, 10% 50%); }
+
+.poly:nth-child(3n + 1) { animation-delay: 0s; }
+.poly:nth-child(3n + 2) { animation-delay: -2s; }
+.poly:nth-child(3n + 3) { animation-delay: -4s; }
+
+@keyframes pos {
+    to { transform: translate(var(--x), var(--y)) rotate(270deg); }
+}
 
 @keyframes poly {
-	25% {
-		opacity: .99;
-		clip-path: var(--p1)
-	}
-	75% { opacity: .99 }
-	to {
-		transform: scale(1);
-		opacity: 0;
-		clip-path: var(--p1)
-	}
+    25% { opacity: .99; clip-path: var(--p1); }
+    75% { opacity: 0.99; }
+    to { transform: scale(1); opacity: 0; clip-path: var(--p1); }
+}
+
+/* --- TEXT OVERLAY --- */
+.text-container {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    pointer-events: none;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.thank-you-text {
+    font-weight: 400;
+    font-size: clamp(2rem, 8vw, 6rem);
+    color: #00ff99;
+    text-shadow: 0 0 5px #00ff99, 0 0 15px #00ff99, 0 0 30px #00ff99;
+    text-transform: uppercase;
+    text-align: center;
+    word-wrap: break-word;
+    max-width: 100%;
+    line-height: 1.2;
 }
