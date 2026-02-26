@@ -5,12 +5,11 @@
 <title>nNoiyedWare</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 
 <style>
-/* ===== BASE PAGE ===== */
 html, body {
     margin: 0;
-    padding: 0;
     width: 100%;
     height: 100%;
     background: black;
@@ -18,7 +17,6 @@ html, body {
     font-family: 'Share Tech Mono', monospace;
 }
 
-/* ===== TEXT OVERLAY ===== */
 .text-container {
     position: fixed;
     inset: 0;
@@ -33,10 +31,7 @@ html, body {
 .thank-you-text {
     font-size: clamp(2rem, 8vw, 6rem);
     color: #00ff99;
-    text-shadow:
-        0 0 5px #00ff99,
-        0 0 15px #00ff99,
-        0 0 30px #00ff99;
+    text-shadow: 0 0 5px #00ff99, 0 0 15px #00ff99, 0 0 30px #00ff99;
     letter-spacing: 0.15em;
 }
 </style>
@@ -44,20 +39,12 @@ html, body {
 
 <body>
 
-<!-- ===== BACKGROUND SVG ===== -->
-<svg
+<svg id="bg"
     viewBox="-500 -500 1000 1000"
     width="100%"
     height="100%"
-    style="
-        position: fixed;
-        inset: 0;
-        pointer-events: none;
-        mix-blend-mode: screen;
-    "
->
+    style="position:fixed; inset:0; pointer-events:none; mix-blend-mode:screen;">
     <defs>
-        <!-- Neon glow -->
         <filter id="neon">
             <feGaussianBlur stdDeviation="6" result="blur"/>
             <feMerge>
@@ -67,57 +54,109 @@ html, body {
         </filter>
     </defs>
 
-    <!-- ===== ORBIT SYSTEM ===== -->
-    <g>
-        <!-- Orbit rotation -->
-        <animateTransform
-            attributeName="transform"
-            type="rotate"
-            from="0"
-            to="360"
-            dur="40s"
-            repeatCount="indefinite"
-        />
-
-        <!-- ===== SINGLE POLYGON (PLACEHOLDER) ===== -->
-        <g transform="translate(220 0)">
-            <!-- Self spin -->
-            <animateTransform
-                attributeName="transform"
-                type="rotate"
-                from="0"
-                to="-360"
-                dur="16s"
-                repeatCount="indefinite"
-            />
-
-            <!-- Outer glow -->
-            <polygon
-                points="0,-60 52,-30 52,30 0,60 -52,30 -52,-30"
-                stroke="#00ffff"
-                stroke-width="6"
-                opacity="0.25"
-                fill="none"
-                filter="url(#neon)"
-            />
-
-            <!-- Core stroke -->
-            <polygon
-                points="0,-60 52,-30 52,30 0,60 -52,30 -52,-30"
-                stroke="#00ffff"
-                stroke-width="2"
-                fill="none"
-            />
-        </g>
-    </g>
+    <g id="orbitRoot"></g>
 </svg>
 
-<!-- ===== TEXT ===== -->
 <div class="text-container">
     <div class="thank-you-text">
-        TO BE ANNOUNCED BY<br> NNOIYEDWARE
+        TO BE ANNOUNCED BY<br>NNOIYEDWARE
     </div>
 </div>
+
+<script>
+const orbitRoot = document.getElementById("orbitRoot");
+const POLYGONS = 12;
+const COLORS = ["#00ffff", "#ff4fd8", "#9d6bff", "#00ff99", "#ffd166"];
+
+let mouse = { x: 0, y: 0 };
+let target = { x: 0, y: 0 };
+
+// Mouse parallax (low ratio)
+window.addEventListener("mousemove", e => {
+    mouse.x = (e.clientX / window.innerWidth - 0.5) * 60;
+    mouse.y = (e.clientY / window.innerHeight - 0.5) * 60;
+});
+
+// Ease back to center when idle
+gsap.ticker.add(() => {
+    target.x += (mouse.x - target.x) * 0.05;
+    target.y += (mouse.y - target.y) * 0.05;
+    orbitRoot.setAttribute("transform", `translate(${target.x}, ${target.y})`);
+});
+
+// Polygon generator
+function polygonPoints(sides, radius) {
+    let pts = [];
+    for (let i = 0; i < sides; i++) {
+        const a = (i / sides) * Math.PI * 2;
+        pts.push(`${Math.cos(a)*radius},${Math.sin(a)*radius}`);
+    }
+    return pts.join(" ");
+}
+
+for (let i = 0; i < POLYGONS; i++) {
+    const depth = Math.random();
+    const size = gsap.utils.interpolate(30, 90, depth);
+    const sides = gsap.utils.random(5, 9, 1);
+    const color = gsap.utils.random(COLORS);
+    const radius = gsap.utils.random(120, 380);
+
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    const angle = Math.random() * 360;
+
+    g.setAttribute("transform", `rotate(${angle}) translate(${radius} 0) scale(${depth})`);
+    orbitRoot.appendChild(g);
+
+    // Glow
+    const glow = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+    glow.setAttribute("points", polygonPoints(sides, size));
+    glow.setAttribute("stroke", color);
+    glow.setAttribute("stroke-width", 6);
+    glow.setAttribute("opacity", 0.25);
+    glow.setAttribute("fill", "none");
+    glow.setAttribute("filter", "url(#neon)");
+
+    // Core
+    const core = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+    core.setAttribute("points", polygonPoints(sides, size));
+    core.setAttribute("stroke", color);
+    core.setAttribute("stroke-width", 2);
+    core.setAttribute("fill", "none");
+
+    g.append(glow, core);
+
+    // Spin
+    gsap.to(g, {
+        rotation: gsap.utils.random(-360, 360),
+        duration: gsap.utils.random(12, 24),
+        repeat: -1,
+        ease: "none"
+    });
+
+    // Pulse outward + fade (optional but enabled)
+    gsap.fromTo(g,
+        { scale: 0.2, opacity: 0 },
+        {
+            scale: depth,
+            opacity: 1,
+            duration: 2,
+            delay: i * 0.15,
+            ease: "power2.out",
+            yoyo: true,
+            repeat: -1,
+            repeatDelay: gsap.utils.random(2, 4)
+        }
+    );
+}
+
+// Global orbit
+gsap.to(orbitRoot, {
+    rotation: 360,
+    duration: 90,
+    repeat: -1,
+    ease: "none"
+});
+</script>
 
 </body>
 </html>
