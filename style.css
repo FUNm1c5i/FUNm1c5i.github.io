@@ -1,123 +1,32 @@
-/* --- BASE --- */
+/* --- BASE PAGE --- */
 html, body {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
-    background: #000;
+    background: black;
     overflow: hidden;
     font-family: 'Share Tech Mono', monospace;
 }
 
-/* --- BACKGROUND LAYER --- */
-#background-layer {
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
-/* --- POLYGON BG --- */
-.poly {
-    position: absolute;
-    color: hsl(var(--hue), 100%, 65%);
-    filter: drop-shadow(0 0 15px currentColor);
-    mix-blend-mode: screen;
-    animation: pos 6s linear infinite;
-}
-
-.poly::before {
-    display: block;
-    margin: -10em;
-    padding: 10em;
-    border-radius: 50%;
-    transform: scale(0);
-    background: currentColor;
-    clip-path: var(--p0);
-    animation: poly 6s ease-out infinite;
-    content: "";
-}
-
-/* --- POLYGON POS --- */
-.poly:nth-child(3n + 1) {
-    top: 50vh;
-    left: 50vw;
-    --x: 0;
-    --y: 0;
-    --hue: 26;
-    --p0: polygon(50% 0%, 0% 100%, 100% 100%);
-    --p1: polygon(50% 5%, 5% 95%, 95% 95%);
-}
-
-.poly:nth-child(3n + 2) {
-    top: 25vh;
-    left: 75vw;
-    --x: 0;
-    --y: 0;
-    --hue: 218;
-    --p0: polygon(50% 0%, 10% 25%, 10% 75%, 50% 100%, 90% 75%, 90% 25%);
-    --p1: polygon(50% 10%, 20% 30%, 20% 70%, 50% 90%, 80% 70%, 80% 30%);
-}
-
-.poly:nth-child(3n + 3) {
-    top: 75vh;
-    left: 25vw;
-    --x: 0;
-    --y: 0;
-    --hue: 28;
-    --p0: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-    --p1: polygon(30% 10%, 70% 10%, 90% 50%, 70% 90%, 30% 90%, 10% 50%);
-}
-
-/* --- STAGGER TIMING --- */
-.poly:nth-child(3n + 1) { animation-delay: 0s; }
-.poly:nth-child(3n + 2) { animation-delay: -2s; }
-.poly:nth-child(3n + 3) { animation-delay: -4s; }
-
-/* --- ANIMATIONS --- */
-@keyframes pos {
-    to {
-        transform: translate(var(--x), var(--y)) rotate(270deg);
-    }
-}
-
-@keyframes poly {
-    25% {
-        opacity: 0.99;
-        clip-path: var(--p1);
-    }
-    75% {
-        opacity: 0.99;
-    }
-    100% {
-        transform: scale(1);
-        opacity: 0;
-        clip-path: var(--p1);
-    }
-}
-
 /* --- TEXT OVERLAY --- */
 .text-container {
-    position: absolute;
+    position: fixed;
     inset: 0;
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 10;
     pointer-events: none;
-    padding: 20px;
-    box-sizing: border-box;
+    text-align: center;
 }
 
 .thank-you-text {
-    font-weight: 400;
     font-size: clamp(2rem, 8vw, 6rem);
     color: #00ff99;
     text-shadow:
         0 0 5px #00ff99,
         0 0 15px #00ff99,
         0 0 30px #00ff99;
-    text-transform: uppercase;
-    text-align: center;
-    max-width: 100%;
-    line-height: 1.2;
+    letter-spacing: 0.15em;
 }
