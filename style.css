@@ -1,15 +1,31 @@
-/* --- BASE PAGE --- */
+/* --- CUSTOM FONT CONFIGURATION --- */
+@font-face {
+    font-family: 'ZeroesOne'; 
+    src: url('charset/zeroesone.ttf') format('truetype');
+}
+
 html, body {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
-    background: black;
+    background: #000;
     overflow: hidden;
-    font-family: 'Share Tech Mono', monospace;
+    font-family: 'ZeroesOne', 'Share Tech Mono', monospace;
 }
 
-/* --- TEXT OVERLAY --- */
+/* --- SVG BACKGROUND LAYER --- */
+#bg {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    z-index: 1;
+}
+
+/* --- RESPONSIVE TEXT OVERLAY --- */
 .text-container {
     position: fixed;
     inset: 0;
@@ -18,15 +34,27 @@ html, body {
     align-items: center;
     z-index: 10;
     pointer-events: none;
-    text-align: center;
+    padding: 40px;
+    box-sizing: border-box;
 }
 
 .thank-you-text {
-    font-size: clamp(2rem, 8vw, 6rem);
+    font-family: 'ZeroesOne', sans-serif;
+    font-size: clamp(1.8rem, 7vw, 5.5rem);
     color: #00ff99;
-    text-shadow:
-        0 0 5px #00ff99,
-        0 0 15px #00ff99,
-        0 0 30px #00ff99;
-    letter-spacing: 0.15em;
+    text-shadow: 
+        0 0 10px rgba(0, 255, 153, 0.8),
+        0 0 20px rgba(0, 255, 153, 0.5);
+    text-transform: uppercase;
+    text-align: center;
+    line-height: 1.1;
+    letter-spacing: 0.1em;
+    word-wrap: break-word;
+    max-width: 100%;
+}
+
+.thank-you-text span {
+    display: inline-block;
+    min-width: 0.6ch;
+    will-change: transform, opacity;
 }
