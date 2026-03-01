@@ -1,51 +1,92 @@
-html {
-  overflow: hidden;
-  background: #000;
+/* ===============================
+   BASE / RESET
+================================ */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
 }
 
-body {
-  /* Reduced glow slightly for better performance */
-  filter: drop-shadow(0 0 8px #fff);
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+    font-family: 'Share Tech Mono', monospace;
 }
 
-.poly {
-  position: absolute;
-  color: HSL(var(--hue), 100%, 65%);
-  filter: drop-shadow(0 0 15px currentcolor);
-  mix-blend-mode: screen;
-  /* Added 'alternate' so they return after flying away */
-  animation: pos 8s ease-in-out infinite alternate; 
+/* ===============================
+   SVG BACKGROUND
+================================ */
+
+svg#bg {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    user-select: none;
 }
 
-.poly:before {
-  display: block;
-  margin: -10em;
-  padding: 10em;
-  border-radius: 50%;
-  transform: scale(0);
-  background: currentcolor;
-  clip-path: var(--p0);
-  animation: inherit;
-  animation-name: poly;
-  animation-timing-function: ease-out;
-  content: "";
+/* Prevent SVG text selection / dragging */
+svg * {
+    pointer-events: none;
+    user-select: none;
 }
 
-/* ... keep your existing .poly:nth-child selectors here ... */
+/* ===============================
+   TEXT OVERLAY
+================================ */
 
-@keyframes pos {
-  0% {
-    transform: translate(0, 0) rotate(0deg);
-  }
-  100% {
-    /* Moves them and rotates them, then 'alternate' pulls them back */
-    transform: translate(var(--x), var(--y)) rotate(180deg);
-  }
+.text-container {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    padding: 20px;
+    text-align: center;
 }
 
-@keyframes poly {
-  0% { transform: scale(0); opacity: 0; }
-  25% { opacity: 1; clip-path: var(--p1); }
-  75% { opacity: 1; }
-  100% { transform: scale(1.2); opacity: 0; clip-path: var(--p1); }
+/* Main decoder text */
+.thank-you-text {
+    color: #00ff99;
+    font-weight: 400;
+    font-size: clamp(2rem, 8vw, 6rem);
+    line-height: 1.05;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+
+    text-shadow:
+        0 0 5px #00ff99,
+        0 0 15px #00ff99,
+        0 0 30px #00ff99;
+}
+
+/* Each letter span (decoder animation target) */
+.thank-you-text span {
+    display: inline-block;
+    min-width: 0.6ch; /* keeps spacing stable during scramble */
+    will-change: transform, opacity, contents;
+}
+
+/* ===============================
+   RESPONSIVE SAFETY
+================================ */
+
+/* Slightly reduce glow intensity on very small screens */
+@media (max-width: 480px) {
+    .thank-you-text {
+        text-shadow:
+            0 0 4px #00ff99,
+            0 0 10px #00ff99,
+            0 0 18px #00ff99;
+    }
 }
