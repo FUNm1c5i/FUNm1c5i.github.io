@@ -1,175 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Honor of Veylor | nNoiyedWare</title>
-    <link rel="icon" type="image/png" href="favicon.png">
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background: black;
-            overflow: hidden;
-            font-family: 'Share Tech Mono', monospace;
-        }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>nNoiyedWare is me</title>
 
-        /* SVG Background Layer */
-        #bg {
-            position: fixed;
-            inset: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            mix-blend-mode: screen;
-            z-index: 1;
-        }
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<!-- GSAP CDN (keep this before script.js) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 
-        .text-container {
-            position: fixed;
-            inset: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10;
-            pointer-events: none;
-            text-align: center;
-        }
+<style>
+/* ====== BASE ====== */
+html,body {
+  height:100%;
+  margin:0;
+  background:#000;
+  overflow:hidden;
+  font-family:'Share Tech Mono', monospace;
+}
 
-        .thank-you-text {
-            font-size: clamp(2rem, 8vw, 6rem);
-            color: #00ff99;
-            text-shadow: 0 0 10px #00ff99, 0 0 30px #00ff99;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-        }
+/* SVG covers the screen */
+svg#bg {
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  display:block;
+  mix-blend-mode:screen;
+}
 
-        .thank-you-text span {
-            display: inline-block;
-            min-width: 0.6ch;
-            white-space: pre;
-        }
-    </style>
+/* TEXT overlay */
+.text-container {
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:10;
+  pointer-events:none;
+  text-align:center;
+  padding:20px;
+  box-sizing:border-box;
+}
+
+.thank-you-text {
+  color:#00ff99;
+  text-transform:uppercase;
+  font-size:clamp(2rem,8vw,6rem);
+  line-height:1;
+  letter-spacing:.12em;
+  text-shadow:
+    0 0 5px #00ff99,
+    0 0 15px #00ff99,
+    0 0 30px #00ff99;
+  font-weight:400;
+}
+
+/* per-letter spans: reduce spacing and allow transforms */
+.thank-you-text span {
+  display:inline-block;
+  will-change:transform,opacity;
+}
+</style>
 </head>
 <body>
 
-<svg id="bg" viewBox="-500 -500 1000 1000" preserveAspectRatio="xMidYMid slice">
-    <defs>
-        <filter id="neon">
-            <feGaussianBlur stdDeviation="4" result="blur"/>
-            <feMerge>
-                <feMergeNode in="blur"/>
-                <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-        </filter>
-    </defs>
-    <g id="orbitRoot"></g>
+<!-- ===== SVG BACKGROUND ===== -->
+<svg id="bg" viewBox="-500 -500 1000 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <defs>
+    <!-- two neon blur sizes for multilayer glow -->
+    <filter id="neon-lg" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="b1"/>
+      <feMerge>
+        <feMergeNode in="b1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="neon-sm" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="b2"/>
+      <feMerge>
+        <feMergeNode in="b2"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- root group that orbits (we will translate/rotate this with GSAP) -->
+  <g id="orbitRoot" transform="translate(0,0)"></g>
 </svg>
 
+<!-- ===== TEXT (decoder) ===== -->
 <div class="text-container">
-    <h1 class="thank-you-text" id="thankYouText"></h1>
+  <h1 class="thank-you-text" id="thankYouText"></h1>
 </div>
 
-<script>
-    // --- PART 1: LAYERED POLYGON LOGIC ---
-    const orbitRoot = document.getElementById("orbitRoot");
-    const POLY_COUNT = 15;
-    const COLORS = ["#00ffff", "#ff4fd8", "#9d6bff", "#00ff99", "#ffd166"];
-
-    function getPoints(sides, radius) {
-        let pts = [];
-        for (let i = 0; i < sides; i++) {
-            const a = (i / sides) * Math.PI * 2;
-            pts.push(`${Math.cos(a)*radius},${Math.sin(a)*radius}`);
-        }
-        return pts.join(" ");
-    }
-
-    for (let i = 0; i < POLY_COUNT; i++) {
-        const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-        const sides = gsap.utils.random(3, 8, 1);
-        const color = gsap.utils.random(COLORS);
-        const orbitRadius = gsap.utils.random(150, 480);
-        const startAngle = Math.random() * 360;
-        
-        // Create 3 layers for each figure: Glow, Frame, and Core (all unfilled)
-        for (let layer = 1; layer <= 3; layer++) {
-            const poly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-            const size = (gsap.utils.random(40, 80)) / (layer * 0.7);
-            
-            poly.setAttribute("points", getPoints(sides, size));
-            poly.setAttribute("stroke", color);
-            poly.setAttribute("fill", "none"); // IMPORTANT: No fill inside
-            poly.setAttribute("stroke-width", layer === 1 ? 3 : 1);
-            if(layer === 1) poly.setAttribute("filter", "url(#neon)");
-            poly.setAttribute("opacity", 1 / layer);
-            
-            group.appendChild(poly);
-        }
-
-        group.setAttribute("transform", `rotate(${startAngle}) translate(${orbitRadius} 0)`);
-        orbitRoot.appendChild(group);
-
-        // Movement: Fast spin + Drifting back and forth
-        gsap.to(group, {
-            rotation: gsap.utils.random(360, 720) * (Math.random() > 0.5 ? 1 : -1),
-            duration: gsap.utils.random(4, 10),
-            repeat: -1,
-            ease: "none"
-        });
-
-        // Drift the orbit radius slightly so they aren't static
-        gsap.to(group, {
-            x: gsap.utils.random(-50, 50),
-            y: gsap.utils.random(-50, 50),
-            duration: gsap.utils.random(3, 6),
-            repeat: -1,
-            yoyo: true,
-            ease: "sine.inOut"
-        });
-    }
-
-    // Faster Global Orbit
-    gsap.to(orbitRoot, { rotation: 360, duration: 30, repeat: -1, ease: "none" });
-
-    // --- PART 2: FIXED TEXT DECODER ---
-    const textElement = document.getElementById('thankYouText');
-    const originalText = "TO BE ANNOUNCED BY\nNNOIYEDWARE"; // Controlled wrap
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_-+=[]{}|;:,.<>?';
-
-    originalText.split('').forEach(char => {
-        if (char === '\n') {
-            textElement.appendChild(document.createElement('br'));
-        } else {
-            const span = document.createElement('span');
-            span.innerHTML = char === ' ' ? '&nbsp;' : char;
-            textElement.appendChild(span);
-        }
-    });
-
-    const letters = Array.from(textElement.querySelectorAll('span'));
-
-    function startGlitch() {
-        const tl = gsap.timeline({ onComplete: () => gsap.delayedCall(2, startGlitch) });
-        letters.forEach((letter, i) => {
-            const originalChar = letter.innerHTML;
-            if (originalChar === '&nbsp;') return;
-            tl.to({}, {
-                duration: 1.0,
-                onUpdate: () => {
-                    letter.textContent = chars[Math.floor(Math.random() * chars.length)];
-                },
-                onComplete: () => {
-                    letter.innerHTML = originalChar;
-                }
-            }, i * 0.04);
-        });
-    }
-    startGlitch();
-</script>
+<!-- link external script (defer behavior is fine because GSAP loaded above) -->
+<script src="script.js" defer></script>
 </body>
 </html>
