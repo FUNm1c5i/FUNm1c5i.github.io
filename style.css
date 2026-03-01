@@ -1,7 +1,7 @@
 /* --- CUSTOM FONT CONFIGURATION --- */
 @font-face {
     font-family: 'ZeroesOne'; 
-    src: url('fonts/zeroesone.ttf') format('truetype');
+    src: url('charset/zeroesone.ttf') format('truetype');
 }
 
 html, body {
