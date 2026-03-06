@@ -222,7 +222,12 @@ gsap.ticker.add(() => {
 ================================ */
 const textEl = document.getElementById("thankYouText");
 const originalText = "TO BE ANNOUNCED BY NNOIYEDWARE";
-const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+const charsDesktop = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+const isMobileDecoder = window.matchMedia("(max-width: 768px)").matches;
+const chars = isMobileDecoder ? "ABCDEFGHIJKLM" : charsDesktop;
+const decoderDuration = isMobileDecoder ? 0.8 : 1.2;
+const decoderStagger = isMobileDecoder ? 0.16 : 0.06;
+const decoderPause = isMobileDecoder ? 1.6 : 1.2;
 
 const words = originalText.split(" ");
 const letters = [];
@@ -247,25 +252,38 @@ words.forEach((word, wordIndex) => {
     }
 });
 
+let mobilePhase = 0;
+
 function runDecoder() {
     const tl = gsap.timeline({
-        onComplete: () => gsap.delayedCall(1.2, runDecoder)
+        onComplete: () => {
+            if (isMobileDecoder) {
+                mobilePhase = mobilePhase === 0 ? 1 : 0;
+            }
+
+            gsap.delayedCall(decoderPause, runDecoder);
+        }
     });
 
     letters.forEach((letter, i) => {
+        if (isMobileDecoder && i % 2 !== mobilePhase) {
+            return;
+        }
+
         tl.to({}, {
-            duration: 1.2,
+            duration: decoderDuration,
             onUpdate: () => {
                 letter.textContent = chars[Math.floor(Math.random() * chars.length)];
             },
             onComplete: () => {
                 letter.textContent = letter.dataset.char;
             }
-        }, i * 0.06);
+        }, i * decoderStagger);
     });
 }
 
 runDecoder();
+
 
 
 
