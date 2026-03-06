@@ -9,6 +9,97 @@ html, body {
     font-family: 'Share Tech Mono', monospace;
 }
 
+body.loading {
+    overflow: hidden;
+}
+
+/* LOADER */
+.site-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.92);
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+
+.site-loader.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.loader-dots {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 6px;
+}
+
+.loader-dots li {
+    list-style: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    animation: loader-grow 1.6s ease-in-out infinite;
+}
+
+@keyframes loader-grow {
+    0%, 40%, 100% {
+        transform: scale(0.2);
+    }
+
+    20% {
+        transform: scale(1);
+    }
+}
+
+.loader-dots li:nth-child(1) {
+    animation-delay: -1.4s;
+    background: #ffff00;
+    box-shadow: 0 0 50px #ffff00;
+}
+
+.loader-dots li:nth-child(2) {
+    animation-delay: -1.2s;
+    background: #76ff03;
+    box-shadow: 0 0 50px #76ff03;
+}
+
+.loader-dots li:nth-child(3) {
+    animation-delay: -1s;
+    background: #f06292;
+    box-shadow: 0 0 50px #f06292;
+}
+
+.loader-dots li:nth-child(4) {
+    animation-delay: -0.8s;
+    background: #4fc3f7;
+    box-shadow: 0 0 50px #4fc3f7;
+}
+
+.loader-dots li:nth-child(5) {
+    animation-delay: -0.6s;
+    background: #ba68c8;
+    box-shadow: 0 0 50px #ba68c8;
+}
+
+.loader-dots li:nth-child(6) {
+    animation-delay: -0.4s;
+    background: #f57c00;
+    box-shadow: 0 0 50px #f57c00;
+}
+
+.loader-dots li:nth-child(7) {
+    animation-delay: -0.2s;
+    background: #673ab7;
+    box-shadow: 0 0 50px #673ab7;
+}
+
 /* SVG BACKGROUND */
 #bg {
     position: fixed;
@@ -21,6 +112,7 @@ html, body {
 /* POLYGONS */
 polygon {
     fill: none;
+    stroke: currentColor;
     stroke-width: 2;
     filter: drop-shadow(0 0 10px currentColor);
     opacity: 0.85;
@@ -47,10 +139,17 @@ polygon {
     text-transform: uppercase;
     letter-spacing: 0.08em;
     line-height: 1.2;
-    word-break: keep-all;
+    word-break: normal;
+    overflow-wrap: normal;
+    white-space: normal;
 }
 
-.thank-you-text span {
+.thank-you-text .word {
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.thank-you-text .letter {
     display: inline-block;
     min-width: 0.55ch;
 }
