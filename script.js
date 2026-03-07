@@ -252,24 +252,14 @@ words.forEach((word, wordIndex) => {
     }
 });
 
-let mobilePhase = 0;
-
 function runDecoder() {
     const tl = gsap.timeline({
         onComplete: () => {
-            if (isMobileDecoder) {
-                mobilePhase = mobilePhase === 0 ? 1 : 0;
-            }
-
             gsap.delayedCall(decoderPause, runDecoder);
         }
     });
 
     letters.forEach((letter, i) => {
-        if (isMobileDecoder && i % 2 !== mobilePhase) {
-            return;
-        }
-
         tl.to({}, {
             duration: decoderDuration,
             onUpdate: () => {
@@ -283,6 +273,8 @@ function runDecoder() {
 }
 
 runDecoder();
+
+
 
 
 
